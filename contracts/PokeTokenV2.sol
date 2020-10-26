@@ -3,7 +3,7 @@ pragma solidity ^0.7.0;
 
 import "./IERC20.sol";
 
-contract PokeToken  is IERC20 {
+contract PokeTokenV2  is IERC20 {
     uint public poke;
 
     mapping (address => uint256) private _balances;
@@ -14,10 +14,7 @@ contract PokeToken  is IERC20 {
     }
 
     function increasePoke() payable external virtual  {
-        poke++;
-        poke++;
-        poke++;
-        poke++;
+        poke++;    
     }
 
     function getPoke() external view returns(uint){

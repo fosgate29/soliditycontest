@@ -1,0 +1,26 @@
+{
+  "name": "soliditycontest",
+  "version": "1.0.0",
+  "description": "It will explore this bug: https://solidity.ethereum.org/2020/10/07/solidity-dynamic-array-cleanup-bug/",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fosgate29/soliditycontest.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fosgate29/soliditycontest/issues"
+  },
+  "homepage": "https://github.com/fosgate29/soliditycontest#readme",
+  "dependencies": {
+    "chai": "^4.2.0",
+    "openzeppelin-test-helpers": "^0.5.1"
+  }
+}
