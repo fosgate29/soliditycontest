@@ -3,13 +3,13 @@ web3.eth = Promise.promisifyAll(web3.eth);
 const {toBN, toWei, utf8ToHex} = web3.utils;
 const { constants,time,expectRevert } = require('openzeppelin-test-helpers');
 const { shouldFail } = require("openzeppelin-test-helpers");
-const SuperiorTransparentUpgradableProxy = artifacts.require("SuperiorTransparentUpgradableProxy");
+const TransparentUpgradeableProxyOpen = artifacts.require("TransparentUpgradeableProxyOpen");
 const PokeToken = artifacts.require("PokeToken");
 const PokeTokenV2 = artifacts.require("PokeTokenV2");
 const { expect } = require('chai');
 const chai = require('chai');
 
-contract('SuperiorTransparentUpgradableProxy', (accounts) => {
+contract('TransparentUpgradeableProxyOpen', (accounts) => {
 
     const [proxyAdminAddress, anotherAccount, anotherAccount1] = accounts;
 
@@ -23,14 +23,14 @@ contract('SuperiorTransparentUpgradableProxy', (accounts) => {
 
     beforeEach(async function () {
         const initializeData = Buffer.from('');
-        proxy = await SuperiorTransparentUpgradableProxy.new(implementationV0, {
+        proxy = await TransparentUpgradeableProxyOpen.new(implementationV0, proxyAdminAddress, initializeData ,{
           from: proxyAdminAddress,
         });
     });
 
     it('should allow to run complete scenario', async() =>
     {
-        const tx = await proxy.upgradeTo({from: proxyAdminAddress});
+        //const tx = await proxy.upgradeTo({from: proxyAdminAddress});
 
         const pokeToken = new PokeToken(proxy.address);
 
@@ -38,17 +38,15 @@ contract('SuperiorTransparentUpgradableProxy', (accounts) => {
 
         const value = await pokeToken.getPoke({from: anotherAccount});
 
-        console.log(value.toString(10));
         assert.strictEqual('4', value.toString(10), "Increase poke is not 4");
 
-        const tx2 = await proxy.setUpgradeTo(implementationV1, 2000, 6, proxy.address, {from: proxyAdminAddress});      
-        const tx3 = await proxy.upgradeTo({from: proxyAdminAddress});
+        const tx3 = await proxy.upgradeTo(implementationV1, {from: proxyAdminAddress});
 
-        const pokeToken2 = new PokeTokenV2(proxy.address);
-        await pokeToken2.increasePoke({from: anotherAccount});
+        await pokeToken.increasePoke({from: anotherAccount});
 
-        const value2 = await pokeToken2.getPoke({from: anotherAccount});
-        console.log(value2.toString(10));
+        const value2 = await pokeToken.getPoke({from: anotherAccount});
+        
+        assert.strictEqual('5', value2.toString(10), "Increase poke is not 5");
         
         
     });
