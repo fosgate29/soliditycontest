@@ -26,14 +26,18 @@ import "./UpgradeableProxy.sol";
  * you should think of the `ProxyAdmin` instance as the real administrative inerface of your proxy.
  */
 contract TransparentUpgradeableProxy is UpgradeableProxy {
+    
+
     /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
      * optionally initialized with `_data` as explained in {UpgradeableProxy-constructor}.
      */
-    constructor(address _logic, address _admin, bytes memory _data) payable UpgradeableProxy(_logic, _data) {
+    constructor(address _admin) payable {
         assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
         _setAdmin(_admin);
     }
+    
+    
 
     /**
      * @dev Emitted when the admin account has changed.
@@ -96,30 +100,7 @@ contract TransparentUpgradeableProxy is UpgradeableProxy {
         emit AdminChanged(_admin(), newAdmin);
         _setAdmin(newAdmin);
     }
-
-    /**
-     * @dev Upgrade the implementation of the proxy.
-     * 
-     * NOTE: Only the admin can call this function. See {ProxyAdmin-upgrade}.
-     */
-    function upgradeTo(address newImplementation) external ifAdmin {
-        _upgradeTo(newImplementation);
-    }
-
-    /**
-     * @dev Upgrade the implementation of the proxy, and then call a function from the new implementation as specified
-     * by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
-     * proxied contract.
-     * 
-     * NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.
-     */
-    function upgradeToAndCall(address newImplementation, bytes calldata data) external payable ifAdmin {
-        _upgradeTo(newImplementation);
-        // solhint-disable-next-line avoid-low-level-calls
-        (bool success,) = newImplementation.delegatecall(data);
-        require(success);
-    }
-
+    
     /**
      * @dev Returns the current admin.
      */
