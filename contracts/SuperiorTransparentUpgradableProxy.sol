@@ -33,7 +33,6 @@ contract SuperiorTransparentUpgradableProxy is TransparentUpgradeableProxy, Supe
     /**
      * @dev Upgrade the implementation of the proxy.
      * 
-     * NOTE: Only the admin can call this function. See {ProxyAdmin-upgrade}.
      */
     function upgradeTo() external {
         //it will revert if upgrade is not allowed

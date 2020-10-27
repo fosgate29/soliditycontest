@@ -5,9 +5,9 @@ import "./IERC20.sol";
 
 contract Superior  {
     
-    mapping(bytes32 => address) public hasVoted;
+    mapping(bytes32 => address) public hasVoted; //stores if address has already voted
     
-    IERC20 public ERC20Token;
+    IERC20 public ERC20Token; //interface to be able to check if address has some tokens and can vote
     
     /*
     * [time stamp,#min votes, time stamp of vote completion, owner address]
@@ -15,9 +15,9 @@ contract Superior  {
     uint128[] public voteDetails;
     
     constructor() {
-        voteDetails.push(0); // # of votes
+        voteDetails.push(0); // # minimum votes
         voteDetails.push(0); // # yes votes
-        voteDetails.push(0); // # no votes
+        voteDetails.push(0); // # timestamp - it will be used to cancel vote and to generate voteId
         voteDetails.push(1); // first deploy
     }
 
@@ -28,8 +28,8 @@ contract Superior  {
         ERC20Token = IERC20(_erc20Token);
         
         voteDetails[0] = _minYesVotes; //  at least 1001
-        voteDetails.push(); // # yes votes - 0
-        voteDetails.push(uint128(block.timestamp)); // # timestamp
+        voteDetails.push(); // # yes votes - initial value is 0
+        voteDetails.push(uint128(block.timestamp)); // # timestamp - it will be used to create voteId
     }
     
     function generateVoteId() public view returns (bytes32 result){
@@ -64,6 +64,8 @@ contract Superior  {
         }        
     }
 
+    //Check if vote is opened, if user is admin and can upgrade for the first time only
+    //and will return true if number of Yes votes are higher than a minimum value
     function _checkUpgradeIsOk(bool isAdmin) internal {
         require(voteDetails.length > 1, "Upgrade is closed");
         
