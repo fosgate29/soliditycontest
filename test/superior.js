@@ -11,46 +11,50 @@ const chai = require('chai');
 
 contract('SuperiorTransparentUpgradableProxy', (accounts) => {
 
-    const [proxyAdminAddress, anotherAccount, anotherAccount1] = accounts;
+    const [proxyAdminAddress, anotherAccount] = accounts;
 
     let proxy;
     let implementationV0,  implementationV1;
 
     before(async function () {
-        implementationV0 = (await PokeToken.new()).address;
-        implementationV1 = (await PokeTokenV2.new()).address;
+        implementationV0 = (await PokeToken.new()).address;   //poke +4
+        implementationV1 = (await PokeTokenV2.new()).address; //poke +1
     });
 
     beforeEach(async function () {
-        const initializeData = Buffer.from('');
-        proxy = await SuperiorTransparentUpgradableProxy.new(implementationV0, {
-          from: proxyAdminAddress,
-        });
+        proxy = await SuperiorTransparentUpgradableProxy.new(implementationV0, {from: proxyAdminAddress});
     });
 
-    it('should allow to run complete scenario', async() =>
+    it('should allow admin to upgrade contract before reaching minimum yes votes', async() =>
     {
+        //after deploy, Admin executes upgradeTo to setup initial implementation
         const tx = await proxy.upgradeTo({from: proxyAdminAddress});
-
+        
+        //Instantiate poketoken and execute increatePoke function
         const pokeToken = new PokeToken(proxy.address);
 
         await pokeToken.increasePoke({from: anotherAccount});
 
-        const value = await pokeToken.getPoke({from: anotherAccount});
+        let value = await pokeToken.getPoke({from: anotherAccount});
 
-        console.log(value.toString(10));
-        assert.strictEqual('4', value.toString(10), "Increase poke is not 4");
+        //value should be equal to 4 (one poke)
+        assert.strictEqual(value.toString(10), '4', "Increase poke is not 4");
 
-        const tx2 = await proxy.setUpgradeTo(implementationV1, 2000, 6, proxy.address, {from: proxyAdminAddress});      
-        const tx3 = await proxy.upgradeTo({from: proxyAdminAddress});
+        //now admin will set upgrade implementation to poke version 2. it will increase poke in 1.
+        await proxy.setUpgradeTo(implementationV1, 2000, proxy.address, {from: proxyAdminAddress});      
 
-        const pokeToken2 = new PokeTokenV2(proxy.address);
-        await pokeToken2.increasePoke({from: anotherAccount});
+        await expectRevert
+        (
+            proxy.upgradeTo({from: anotherAccount}),
+            "Yes votes didnt reach minimum required value."
+        );
+        await proxy.upgradeTo({from: proxyAdminAddress});  //admin can execute upgrade and doesn't need to wait for the minimum number of votes
 
-        const value2 = await pokeToken2.getPoke({from: anotherAccount});
-        console.log(value2.toString(10));
+        await pokeToken.increasePoke({from: anotherAccount});  //will add +1
+
+        value = await pokeToken.getPoke({from: anotherAccount});
         
-        
+        assert.strictEqual(value.toString(10), '5', "Increase poke is not 5");
     });
 
 });

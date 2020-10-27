@@ -23,9 +23,9 @@ contract SuperiorTransparentUpgradableProxy is TransparentUpgradeableProxy, Supe
      * 
      * NOTE: Only the admin can call this function
      */
-    function setUpgradeTo(address _newImplementation, uint128 _votePercent, uint128 _expirationDays, address _erc20Token) external ifAdmin {
+    function setUpgradeTo(address _newImplementation, uint128 _minYesVotes, address _erc20Token) external ifAdmin {
         //initialize vote details
-        _startSetUpgradeTo(_votePercent, _expirationDays, _erc20Token);
+        _startSetUpgradeTo(_minYesVotes, _erc20Token);
         
         newImplementationAddress = _newImplementation;
     }
