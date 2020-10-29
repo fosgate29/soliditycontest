@@ -41,7 +41,10 @@ contract('SuperiorTransparentUpgradableProxy', (accounts) => {
         assert.strictEqual(value.toString(10), '4', "Increase poke is not 4");
 
         //now admin will set upgrade implementation to poke version 2. it will increase poke in 1.
-        await proxy.setUpgradeTo(implementationV1, 2000, proxy.address, {from: proxyAdminAddress});      
+        await proxy.setUpgradeTo(implementationV1, 2000, {from: proxyAdminAddress});
+
+        const tt = await proxy.vote(1, {from: anotherAccount});
+        console.log(tt);
 
         await expectRevert
         (

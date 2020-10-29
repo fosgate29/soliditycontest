@@ -17,15 +17,13 @@ contract Superior  {
     constructor() {
         voteDetails.push(0); // # minimum votes
         voteDetails.push(0); // # yes votes
-        voteDetails.push(0); // # timestamp - it will be used to cancel vote and to generate voteId
+        voteDetails.push(uint128(block.timestamp)); // # timestamp - it will be used to cancel vote and to generate voteId
         voteDetails.push(1); // first deploy
     }
 
-    function _startSetUpgradeTo(uint128 _minYesVotes, address _erc20Token) internal  {
+    function _startSetUpgradeTo(uint128 _minYesVotes) internal  {
         require(voteDetails.length == 1, "Vote is already opened.");
         require(_minYesVotes > 1000, "Minimum vote amount must be greater that 1000.");
-        
-        ERC20Token = IERC20(_erc20Token);
         
         voteDetails[0] = _minYesVotes; //  at least 1001
         voteDetails.push(); // # yes votes - initial value is 0
@@ -62,6 +60,10 @@ contract Superior  {
         if(voteDetails[2] + 7 days < block.timestamp){
             _resetVoteDetails();
         }        
+    }
+
+    function _setERC20Token(address _logic) internal {
+        ERC20Token = IERC20(_logic);
     }
 
     //Check if vote is opened, if user is admin and can upgrade for the first time only
