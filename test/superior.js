@@ -44,13 +44,13 @@ contract('SuperiorTransparentUpgradableProxy', (accounts) => {
         await proxy.setUpgradeTo(implementationV1, 2000, {from: proxyAdminAddress});
 
         const tt = await proxy.vote(1, {from: anotherAccount});
-        console.log(tt);
 
         await expectRevert
         (
             proxy.upgradeTo({from: anotherAccount}),
             "Yes votes didnt reach minimum required value."
         );
+        
         await proxy.upgradeTo({from: proxyAdminAddress});  //admin can execute upgrade and doesn't need to wait for the minimum number of votes
 
         await pokeToken.increasePoke({from: anotherAccount});  //will add +1
